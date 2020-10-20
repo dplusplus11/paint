@@ -1,0 +1,429 @@
+<!DOCTYPE HTML>
+<html>
+	<head> 
+		<title> PaintD </title>
+		<meta charset="utf-8">
+		<meta name="author" content="Dragana Grujičić, s55/16, 2s1" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
+		<link rel="stylesheet" href="paintD.css">
+		<style>
+
+		</style>
+		<script>
+			var cx, cv, mx, my, mx1, my1, startx, starty;
+			var input, robot, globalna, div1;
+			var x, y;
+			var num=0;
+			var mode=0;
+			var color= "black";
+			var intv = null;
+			var mouse_down = false;
+			var down= false;
+			
+			
+			function init (){
+				cv= document.getElementById("cv");
+				cx= cv.getContext("2d");
+				input= parseInt(document.getElementById("b1").value);
+				
+				cx.fillStyle="white";
+				cx.fillRect(0,0,cv.width, cv.height);
+				
+				
+				
+			}
+			
+			function drawMove(e){
+				/*var br = cv.getBoundingClientRect();
+				mx= e.clientX- br.x;
+				my = e.clientY- br.y;*/
+				xPos = e.clientX-cv.offsetLeft;
+				yPos = e.clientY-cv.offsetTop;
+				if(mouse_down == true){
+					cx.lineTo(xPos,yPos); 
+					/*cx.lineTo(mx, my); */
+					cx.lineWidth = 5;
+					cx.strokeStyle = color;
+					cx.stroke();
+					
+					
+				}
+			}
+		
+			function drawDown(){
+				mouse_down = true;
+				cx.beginPath();
+				cx.moveTo(xPos, yPos);
+				/*cx.moveTo(mx, my); */
+			}
+			function drawUp(){
+				mouse_down = false;
+			}
+			
+			
+			function rectMove(e){
+				xPos = e.clientX-cv.offsetLeft;
+				yPos = e.clientY-cv.offsetTop;
+				down = true;
+				/*if(down == true){
+					var x = Math.min(xPos,  startx);
+					var y = Math.min(yPos,  starty);
+					var w = Math.abs(xPos - startx);
+					var h = Math.abs(yPos - starty);
+					cx.strokeStyle = color;
+					cx.clearRect(0,0, cv.width, cv.height);
+					cx.strokeRect(x, y, w, h);
+				}*/
+				
+			}
+		
+			function rectDown(e){
+				down = true;
+				xPos = e.clientX-cv.offsetLeft;
+				yPos = e.clientY-cv.offsetTop;
+				startx=xPos;
+				starty=yPos;
+				
+				
+			}
+			function rectUp(){
+				down = false;
+				var x = Math.min(xPos,  startx);
+				var y = Math.min(yPos,  starty);
+				var w = Math.abs(xPos - startx);
+				var h = Math.abs(yPos - starty);
+				cx.strokeStyle = color;
+				cx.lineWidth = 5;
+				//cx.clearRect(0,0, cv.width, cv.height);
+				cx.strokeRect(x, y, w, h);
+			}
+			function circleMove(e){
+				xPos = e.clientX-cv.offsetLeft;
+				yPos = e.clientY-cv.offsetTop;
+				down = true;
+			}
+			function circleDown(e){
+				down = true;
+				xPos = e.clientX-cv.offsetLeft;
+				yPos = e.clientY-cv.offsetTop;
+				startx=xPos;
+				starty=yPos;
+			}
+			function circleUp(){
+				down = false;
+				var x = (xPos + startx)/2;
+				var y = (yPos + starty)/2;
+				var rad = Math.max(Math.abs(xPos - startx), Math.abs(yPos - starty))/2;
+				cx.beginPath();
+				cx.arc(x, y, rad+rad/6, 0, Math.PI*2);
+				cx.strokeStyle = color;
+				cx.lineWidth = 5;
+				cx.stroke();
+				
+					
+			}
+			function eraseMove(e){
+				xPos = e.clientX-cv.offsetLeft;
+				yPos = e.clientY-cv.offsetTop;
+				if(mouse_down == true){
+					cx.lineTo(xPos,yPos); 
+					cx.lineWidth = 15;
+					cx.strokeStyle = "#ffffff";
+					cx.stroke();
+				}
+			}
+		
+			function eraseDown(){
+				mouse_down = true;
+				cx.beginPath();
+				cx.moveTo(xPos, yPos);
+			}
+			function eraseUp(){
+				mouse_down = false;
+			}
+			
+			
+			
+			function styleMePretty(pretty){
+				color= pretty;
+			}
+			
+			
+			function draw(){
+				clearInterval(intv);
+					intv=null;
+				cx.fillStyle = color;
+				
+				
+					if(mode==1) {
+						input= parseInt(document.getElementById("b1").value);
+						/*if(color=="white"){
+							cx.strokeStyle = "grey";
+							cx.lineWidth = 5;
+							cx.fillRect(mx-input/2, my-input/2, input, input);
+							cx.strokeRect(mx-input/2, my-input/2, input, input);
+						}*/
+						cx.fillRect(mx-input/2, my-input/2, input, input);
+						
+					}
+					if(mode==2) {
+						radius= (parseInt(document.getElementById("b1").value))/2;
+						cx.beginPath();
+						cx.arc(mx, my, radius, 0, 2 * Math.PI);
+						cx.fill();
+						/*if(color=="white"){
+							cx.strokeStyle = "grey";
+							cx.lineWidth = 5;
+							cx.beginPath();
+							cx.arc(mx, my, radius, 0, 2 * Math.PI);
+							cx.fill();
+							cx.stroke();
+						}*/
+					}
+					if(mode==3) {
+						t1= document.getElementById("t1").value;
+						t3= document.getElementById("t3").value;
+						
+						cx.fillStyle = color;
+						cx.font = t3;
+						cx.fillText(t1, mx, my);
+					}	
+					if(mode==4) {
+						robot= document.getElementById("r" + globalna);
+						cx.drawImage(robot, mx-50, my-50);
+				
+					}	
+					if(mode==5) {
+						cv.addEventListener('mousemove', rectMove); 
+						cv.addEventListener('mousedown', rectDown);
+						cv.addEventListener('mouseup', rectUp);
+						
+					}
+					if(!(mode==5)) {
+						cv.removeEventListener('mousemove', rectMove); 
+						cv.removeEventListener('mousedown', rectDown);
+						cv.removeEventListener('mouseup', rectUp);
+						
+					}	
+					if(mode==6) {
+						cv.addEventListener('mousemove', drawMove); 
+						cv.addEventListener('mousedown', drawDown);
+						cv.addEventListener('mouseup', drawUp);
+					}
+					if(!(mode==6)) {
+						cv.removeEventListener('mousemove', drawMove); 
+						cv.removeEventListener('mousedown', drawDown);
+						cv.removeEventListener('mouseup', drawUp);
+						
+					}
+					if(mode==7) {
+						cv.addEventListener('mousemove', eraseMove); 
+						cv.addEventListener('mousedown', eraseDown);
+						cv.addEventListener('mouseup', eraseUp);
+						
+					}
+					if(!(mode==7)) {
+						cv.removeEventListener('mousemove', eraseMove); 
+						cv.removeEventListener('mousedown', eraseDown);
+						cv.removeEventListener('mouseup', eraseUp);
+						
+					}
+					if(mode==8){
+						input= parseInt(document.getElementById("b1").value);
+						my= my+input*2/5;
+						cx.beginPath();
+						cx.moveTo(mx + input/Math.sqrt(3), my);
+						cx.lineTo(mx, my - input);
+						cx.lineTo(mx - input/Math.sqrt(3) , my);
+						cx.closePath();
+						cx.fill();
+					
+					
+					}
+					if(mode==9) {
+						cv.addEventListener('mousemove', circleMove); 
+						cv.addEventListener('mousedown', circleDown);
+						cv.addEventListener('mouseup', circleUp);
+						
+					}
+					if(!(mode==9)) {
+						cv.removeEventListener('mousemove', circleMove); 
+						cv.removeEventListener('mousedown', circleDown);
+						cv.removeEventListener('mouseup', circleUp);
+						
+					}
+					if(mode==10){
+						input= parseInt(document.getElementById("b1").value);
+						mx= mx-input;
+						my= my-input*1.5;
+						cx.beginPath();
+						cx.moveTo(mx + input, my + (input*2));  
+						cx.bezierCurveTo(
+							mx, my + (input * 1.5), 
+							mx+ (input/2), my + (input/2),
+							//mx + (input*0.65), my + (input * 0.75), 
+							mx + input, my + (input * 1.25) 
+						);
+						cx.bezierCurveTo(
+							//mx + (input * 1.4), my + (input * 0.75),
+							mx + (input * 1.5), my + (input/2),
+							mx + (input * 2), my + (input * 1.5), 
+							mx + input, my + (input * 2)
+						);
+						cx.closePath();
+						cx.fillStyle = color;
+						cx.fill(); 
+					}
+					if(mode==11){
+						radius= (parseInt(document.getElementById("b1").value))/2;
+						cx.beginPath();
+						cx.strokeStyle = color;
+						cx.lineWidth = 5;
+						cx.arc(mx, my, radius, 0, Math.PI * 2); 
+						cx.moveTo(mx+ radius*3/5, my+8);
+						cx.arc(mx, my+2, radius*0.625, 0, Math.PI, false);  // usta
+						cx.moveTo(mx- radius*0.3, my-radius/6);
+						cx.arc(mx- radius*0.4, my-radius/6, radius/10, 0, Math.PI * 2);  // levo
+						cx.moveTo(mx + radius*0.5, my-radius/6);
+						cx.arc(mx + radius*0.4, my-radius/6, radius/10, 0, Math.PI * 2);  // desno
+						cx.stroke();
+					}
+					
+					
+			}	
+			
+			
+				
+			function klik(e){
+				var br = cv.getBoundingClientRect();
+				mx= e.clientX- br.x;
+				my = e.clientY- br.y;
+				if(intv == null)
+					intv = setInterval(draw, 33);
+				
+			}
+			
+			
+			function square(){
+				mode=1;	
+			}
+			function circle(){
+				mode=2;
+			}
+			function text(){
+				mode=3;
+			}
+			function pic(n){
+				mode = 4;
+				globalna= n;	
+			}
+			function rect(){
+				mode=5;
+				draw();
+			}
+			function circle_draw(){
+				mode=9;
+				draw();
+			}
+			
+			function free_draw(e){
+				mode=6;
+				draw();
+			}
+			function erase(){
+				mode=7;
+				draw();
+			}
+			function triangle(){
+				mode=8;
+			}
+			function heart(){
+				mode=10;
+				
+			}
+			function smiley(){
+				mode= 11;
+			
+			}
+			
+			
+			function clearCanvas(){
+				cx.clearRect(0, 0, cv.width, cv.height);
+			}
+						
+			window.onload= init;
+		</script>
+		<script>
+			$(function() {
+				$( "#tabs" ).tabs();
+			});
+		</script>
+	
+	</head>
+
+	<body>
+		
+		<div id="div1">
+			<canvas id="cv" width="600" height="470" onclick="klik(event);"></canvas>
+		</div>
+		
+		<div id='tabs'>
+			  <ul>
+				<li><a href='#tabs-1'> <i class="material-icons md-24">palette</i> </a></li>
+				<li><a href='#tabs-2'> <i class="material-icons md-24">burst_mode</i> </a></li>
+			  </ul>
+			  <section class='tabs-content'>
+					<div id='tabs-1'>
+				
+						<div class="options">
+							<div id="colors">
+							<button id="black" onclick='styleMePretty("black");'></button>
+							<button id="darkblue" onclick='styleMePretty("steelblue");'></button>
+							<button id="green" onclick='styleMePretty("mediumseagreen");'></button>
+							<button id="red" onclick='styleMePretty("#e61919");'></button>
+							<button id="orange" onclick='styleMePretty("#f9c31f");'></button> <br>
+							<button id="white" onclick='styleMePretty("#e5e5e5");'> </button>
+							<button id="blue" onclick='styleMePretty("deepskyblue");'></button>
+							<button id="darkgreen" onclick='styleMePretty("lightgreen");'></button>
+							<button id="pink" onclick='styleMePretty("lightcoral");'></button>
+							<button id="yellow" onclick='styleMePretty("#e3c912");'></button> 
+						
+						</div>
+							<input type="number" id="b1" placeholder="Unesite stranicu/precnik "> </br>
+							<button class="btn" onclick='square();'><i class="material-icons">crop_square</i> </button>
+							<button class="btn" onclick='circle();'> <i class="material-icons">panorama_fish_eye</i> </button>
+							<button class="btn" onclick='triangle();'> <i class="material-icons">&#xE86B;</i> </button> 
+							<button class="btn" onclick='heart();'> <i class="material-icons">favorite_border</i> </button> 
+							<button class="btn" onclick='smiley();'> <i class="material-icons">tag_faces</i> </button>  </br>
+							<input type="text" id="t1" placeholder="Unesite neki tekst"> </br>
+							<input type="text" id="t3" placeholder="Unesite velicinu i naziv fonta "> </br>
+							<button class="btn" onclick='text();'> <i class="material-icons">text_fields</i></button> 
+							<button class="btn" onclick='rect();'> <i class="material-icons">crop_16_9</i> </button>
+							<button class="btn" onclick='circle_draw();'> <i class="material-icons">&#xE8E0;</i> </button>
+							<button class="btn" onclick='free_draw(event);'> <i class="material-icons">brush</i></button> 
+							<button class="btn" onclick='erase();'><i class="material-icons">&#xE92B;</i> </button> <br>
+							<button class="btn" onclick='clearCanvas();'> <i class="material-icons">refresh</i> </button>
+					</div>
+				</div>
+				
+				<div id='tabs-2'>
+					<div class="images">
+						<img src="r1.png" width="80" height="80" onclick="pic(1);" id="r1"/>
+						<img src="r2.png" width="80" height="80" onclick="pic(2);" id="r2"/>
+						<img src="r3.png" width="80" height="80" onclick="pic(3);" id="r3"/><br>
+						<img src="r4.png" width="80" height="80" onclick="pic(4);" id="r4"/>
+						<img src="r5.png" width="80" height="80" onclick="pic(5);" id="r5"/>
+						<img src="r6.png" width="80" height="80" onclick="pic(6);" id="r6"/><br>
+						<img src="r7.png" width="80" height="80" onclick="pic(7);" id="r7"/>
+						<img src="r8.png" width="80" height="80" onclick="pic(8);" id="r8"/>
+						<img src="r9.png" width="80" height="80" onclick="pic(9);" id="r9"/>
+					</div>
+				</div>
+			</section>
+		</div>
+
+	</body>
+</html>
